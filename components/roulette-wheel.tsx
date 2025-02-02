@@ -9,11 +9,11 @@ interface RouletteProps {
   currentNumber: number | null;
 }
 
-const RouletteWheel: React.FC<RouletteProps> = ({ 
+const RouletteWheel = ({ 
   numbers, 
   isSpinning, 
-  currentNumber
-}) => {
+  currentNumber,
+}: RouletteProps) => {
   const wheelRef = useRef<SVGGElement>(null);
   const [rotation, setRotation] = useState(0);
   const [wheelState, setWheelState] = useState<'idle' | 'spinning' | 'stopped'>('idle');
@@ -21,6 +21,24 @@ const RouletteWheel: React.FC<RouletteProps> = ({
   const [displayNumbers, setDisplayNumbers] = useState<number[]>([]);
   const animationRef = useRef<number | null>(null);
   const speedRef = useRef(60);
+  const [size, setSize] = useState(500); // Default size
+
+  // Update SVG size based on screen width
+  useEffect(() => {
+    const updateSize = () => {
+      if (window.innerWidth < 640) {
+        setSize(300);
+      } else if (window.innerWidth < 1024) {
+        setSize(400);
+      } else {
+        setSize(500);
+      }
+    };
+
+    updateSize(); // Run on mount
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   useEffect(() => {
     if (initialNumbers.length === 0) {
@@ -35,7 +53,7 @@ const RouletteWheel: React.FC<RouletteProps> = ({
     }
   }, [isSpinning, numbers]);
 
-  const stopAnimation = useCallback(() => {
+    const stopAnimation = useCallback(() => {
     if (animationRef.current) {
       window.cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
@@ -145,8 +163,12 @@ const RouletteWheel: React.FC<RouletteProps> = ({
 
   return (
     <Card className="p-6 flex justify-center items-center relative">
-      <div className="w-[500px] h-[500px]">
-        <svg width="500" height="500" viewBox="-350 -350 700 700">
+      <div className="w-full max-w-[500px] aspect-square">
+        <svg 
+          width={size} 
+          height={size} 
+          viewBox="-350 -350 700 700" // Keeps the proportions
+        >
           <circle
             cx="0"
             cy="0"

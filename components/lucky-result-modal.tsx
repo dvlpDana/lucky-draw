@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Check } from 'lucide-react';
+import { useLuckyDrawStore } from '@/store/lucky-draw-store';
 import RouletteWheel from './roulette-wheel';
 import LuckyNumber from './lucky-number';
 
@@ -31,6 +32,7 @@ const LuckyResultModal = ({
   numbers,
   drawType
 }: LuckyResultModalProps) => {
+  const store = useLuckyDrawStore();
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -69,7 +71,7 @@ const LuckyResultModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
-        <DialogHeader>
+        <DialogHeader className="space-y-2">
           <DialogTitle className="flex items-center gap-2">
             {rank}등 추첨 {isCompleted ? '완료!' : '중...'} 
             {isCompleted && <Check className="w-5 h-5 text-green-500" />}
@@ -77,27 +79,52 @@ const LuckyResultModal = ({
               (남은 추첨: {remainingCount}명)
             </span>
           </DialogTitle>
-        </DialogHeader>
 
-        <div className="my-6">
-          {drawType === 'roulette' ? (
-            <div className="flex justify-center">
-              <RouletteWheel
-                numbers={numbers}
-                isSpinning={isDrawing}
-                currentNumber={currentNumber}
-              />
-            </div>
-          ) : (
-            <div className="flex justify-center">
-              <LuckyNumber
-                numbers={numbers}
-                isSpinning={isDrawing}
-                currentNumber={currentNumber}
-              />
+        {/* Display numbers categorized by rank with styles */}
+          {Object.keys(store.results).length > 0 && (
+            <div className="py-2">
+              <div className="text-sm font-medium text-gray-600">🏆 등수별 추첨 결과</div>
+              <div className="flex items-center gap-2 mt-4">
+                {Object.entries(store.results)
+                  .sort(([rankA], [rankB]) => Number(rankA) - Number(rankB)) // Sort by rank order
+                  .map(([rankKey, numbers]) => (
+                    <div key={rankKey} className="text-gray-700 flex items-center gap-2">
+                      <span className="font-semibold">{rankKey}등:</span>
+                      <div className="flex flex-wrap gap-2">
+                        {numbers.map((number: number, index: number) => (
+                          <div
+                            key={index}
+                            className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-medium"
+                          >
+                            {number}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
-        </div>
+
+        </DialogHeader>
+
+        {drawType === 'roulette' ? (
+          <div className="flex justify-center">
+            <RouletteWheel
+              numbers={numbers}
+              isSpinning={isDrawing}
+              currentNumber={currentNumber}
+            />
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <LuckyNumber
+              numbers={numbers}
+              isSpinning={isDrawing}
+              currentNumber={currentNumber}
+            />
+          </div>
+        )}
 
         <div className="flex justify-center gap-4">
           {remainingCount !== 0 && (
@@ -117,7 +144,7 @@ const LuckyResultModal = ({
             >
               닫기
             </Button>
-          ): (
+          ) : (
             <Button 
               variant="outline" 
               onClick={onClose}

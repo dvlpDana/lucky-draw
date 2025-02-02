@@ -68,6 +68,16 @@ const LuckyDraw = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {/* Excluded Numbers UI */}
+          {store.excludedNumbers.length > 0 && (
+            <div className="my-4 p-4 bg-red-100 border border-red-300 rounded-lg">
+              <h3 className="text-lg font-medium text-red-700">제외된 번호</h3>
+              <p className="mt-2 text-red-600">
+                {store.excludedNumbers.join(", ")}
+              </p>
+            </div>
+          )}
+
           <div className="space-y-4">
             {store.ranks.map((rank) => (
               <Button
