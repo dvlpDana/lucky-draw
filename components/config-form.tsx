@@ -178,11 +178,11 @@ const ConfigForm = () => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="roulette" id="roulette" />
-                <Label htmlFor="roulette">룰렛 휠</Label>
+                <Label htmlFor="roulette" className="text-base font-normal">룰렛 휠</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="number" id="number" />
-                <Label htmlFor="number">행운의 번호</Label>
+                <Label htmlFor="number" className="text-base font-normal">행운의 번호</Label>
               </div>
             </RadioGroup>
           </div>
