@@ -15,12 +15,13 @@ const RouletteWheel = ({
   currentNumber,
 }: RouletteProps) => {
   const wheelRef = useRef<SVGGElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const speedRef = useRef(60);
   const [rotation, setRotation] = useState(0);
   const [wheelState, setWheelState] = useState<'idle' | 'spinning' | 'stopped'>('idle');
   const [initialNumbers, setInitialNumbers] = useState<number[]>([]);
   const [displayNumbers, setDisplayNumbers] = useState<number[]>([]);
-  const animationRef = useRef<number | null>(null);
-  const speedRef = useRef(60);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [size, setSize] = useState(500); // Default size
 
   // Update SVG size based on screen width
@@ -121,9 +122,24 @@ const RouletteWheel = ({
   useEffect(() => {
     if (isSpinning) {
       setWheelState('spinning');
+      setCountdown(8); // Start countdown
+
+      let countdownValue = 8;
+
+      const countdownInterval = setInterval(() => {
+        countdownValue -= 1;
+        setCountdown(countdownValue);
+        if (countdownValue === 1) {
+          clearInterval(countdownInterval);
+          setTimeout(() => {
+            setCountdown(null);
+          }, 1000);
+        }
+      }, 1000);
+      
       let start: number | null = null;
       speedRef.current = 60;
-      
+
       const spin = (timestamp: number) => {
         if (!start) {
           start = timestamp;
@@ -199,6 +215,21 @@ const RouletteWheel = ({
           </g>
         </svg>
 
+        {/* Countdown Animation */}
+        {countdown !== null && (
+          <div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-red-500 font-bold"
+            style={{
+              fontSize: '10rem',
+              animation: 'numberAppear 1s ease-out forwards',
+              transform: 'translate(-50%, -50%) scale(2)',
+            }}
+          >
+            {countdown}
+          </div>
+        )}
+
+        {/* Display Final Lucky Number */}
         {currentNumber !== null && (wheelState === 'stopped' || !isSpinning) && (
           <div 
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-48 w-48 flex justify-center items-center bg-white/80 rounded-full text-8xl font-bold text-slate-700 shadow-lg"

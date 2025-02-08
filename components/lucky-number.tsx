@@ -29,6 +29,7 @@ const LuckyNumber = ({
   const [showFinalNumber, setShowFinalNumber] = useState(false);
   const [canvasWidth, setCanvasWidth] = useState(500);
   const [canvasHeight, setCanvasHeight] = useState(500);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -121,7 +122,22 @@ const LuckyNumber = ({
     const centerY = rect.height / 2;
     const radius = Math.min(centerX, centerY) * 0.9;
 
+    setCountdown(8); 
     setShowFinalNumber(false);
+
+    let countdownValue = 8;
+
+    const countdownInterval = setInterval(() => {
+      countdownValue -= 1;
+      setCountdown(countdownValue);
+      if (countdownValue === 1) {
+        clearInterval(countdownInterval);
+        setTimeout(() => {
+          setCountdown(null);
+          setShowFinalNumber(true);
+        }, 1000);
+      }
+    }, 1000);
 
     const animate = () => {
       numbersRef.current.forEach(item => {
@@ -173,6 +189,22 @@ const LuckyNumber = ({
           ref={canvasRef}
           className="w-full h-full block"
         />
+
+        {/* Countdown Animation */}
+        {countdown !== null && (
+          <div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-red-500 font-bold"
+            style={{
+              fontSize: '10rem',
+              animation: 'numberAppear 1s ease-out forwards',
+              transform: 'translate(-50%, -50%) scale(2)',
+            }}
+          >
+            {countdown}
+          </div>
+        )}
+
+        {/* Display Final Lucky Number */}
         {currentNumber && showFinalNumber && (
           <div 
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/3 aspect-square flex justify-center items-center bg-white/80 rounded-full text-4xl sm:text-6xl md:text-8xl font-bold text-slate-700"
